@@ -1,3 +1,13 @@
+#
+# Cookbook:: packagecloud
+# Resource:: repo
+#
+# Copyright:: 2020
+#
+
+resource_name :packagecloud_repo
+provides :packagecloud_repo
+
 property :repository,      String, name_property: true
 property :master_token,    String
 property :force_os,        String
