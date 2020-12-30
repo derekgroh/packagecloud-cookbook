@@ -1,3 +1,4 @@
+---
 driver:
   name: vagrant
   provider: hyperv
@@ -46,4 +47,4 @@ platforms:
       - recipe[packagecloud_test::rubygems_private]
 
 suites:
-- name: default
+  - name: default

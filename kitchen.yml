@@ -1,3 +1,4 @@
+---
 driver:
   name: vagrant
 
@@ -43,4 +44,4 @@ platforms:
       - recipe[packagecloud_test::rubygems_private]
 
 suites:
-- name: default
+  - name: default
