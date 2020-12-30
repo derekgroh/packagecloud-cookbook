@@ -1,0 +1,46 @@
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  deprecations_as_errors: false
+  chef_license: accept-no-persist
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: amazon-linux
+    driver_config:
+      box: mvbcoding/awslinux
+    run_list:
+      - recipe[packagecloud_test::rpm]
+      - recipe[packagecloud_test::rubygems]
+
+  - name: centos-7
+    run_list:
+      - recipe[packagecloud_test::rpm]
+      - recipe[packagecloud_test::rubygems_private]
+
+  - name: centos-8
+    run_list:
+      - recipe[packagecloud_test::rpm]
+      - recipe[packagecloud_test::rubygems_private]
+
+  - name: ubuntu-16.04
+    run_list:
+      - recipe[packagecloud_test::deb]
+      - recipe[packagecloud_test::rubygems_private]
+
+  - name: ubuntu-18.04
+    run_list:
+      - recipe[packagecloud_test::deb]
+      - recipe[packagecloud_test::rubygems_private]
+
+  - name: ubuntu-20.04
+    run_list:
+      - recipe[packagecloud_test::deb]
+      - recipe[packagecloud_test::rubygems_private]
+
+suites:
+- name: default

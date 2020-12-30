@@ -69,7 +69,7 @@ action_class.class_eval do
       notifies :run, "execute[apt-get-update-#{filename}]", :immediately
     end
 
-    execute "apt-key-add-#{filename}" do # ~FC041
+    execute "apt-key-add-#{filename}" do
       command lazy {
         gpg_url = gpg_url(new_resource.base_url, new_resource.repository, :deb, new_resource.master_token)
         "wget --auth-no-challenge -qO - #{gpg_url} | apt-key add -"
@@ -99,17 +99,20 @@ action_class.class_eval do
 
     Chef::Log.debug("#{new_resource.name} rpm base url = #{base_url}")
 
-    package 'pygpgme' do
-      ignore_failure true
-    end
+    # RHEL 8 does not include pygpgme as dnf does not require it
+    if node['platform_version'].to_i < 8
+      package 'pygpgme' do
+        ignore_failure true
+      end
 
-    log 'pygpgme_warning' do
-      message 'The pygpgme package could not be installed. This means GPG verification is not possible for any RPM installed on your system. ' \
-              'To fix this, add a repository with pygpgme. Usualy, the EPEL repository for your system will have this. ' \
-              'More information: https://fedoraproject.org/wiki/EPEL#How_can_I_use_these_extra_packages.3F and https://github.com/opscode-cookbooks/yum-epel'
+      log 'pygpgme_warning' do
+        message 'The pygpgme package could not be installed. This means GPG verification is not possible for any RPM installed on your system. ' \
+                'To fix this, add a repository with pygpgme. Usualy, the EPEL repository for your system will have this. ' \
+                'More information: https://fedoraproject.org/wiki/EPEL#How_can_I_use_these_extra_packages.3F and https://github.com/opscode-cookbooks/yum-epel'
 
-      level :warn
-      not_if 'rpm -qa | grep -qw pygpgme'
+        level :warn
+        not_if 'rpm -qa | grep -qw pygpgme'
+      end
     end
 
     ruby_block 'disable repo_gpgcheck if no pygpgme' do
@@ -146,7 +149,13 @@ action_class.class_eval do
 
     # reload internal Chef yum cache
     ruby_block "yum-cache-reload-#{filename}" do
-      block { Chef::Provider::Package::Yum::YumCache.instance.reload }
+      block do
+        if node['platform_version'].to_i >= 8
+          Chef::Provider::Package::Dnf::PythonHelper.instance.restart
+        else
+          Chef::Provider::Package::Yum::YumCache.instance.reload
+        end
+      end
       action :nothing
     end
   end
