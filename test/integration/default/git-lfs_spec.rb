@@ -1,3 +1,4 @@
+=begin
 describe command('ls /usr/local/bin/jake') do
   its(:exit_status) { should eq 0 }
 end
@@ -26,4 +27,8 @@ if os[:family] == 'ubuntu'
   describe command('ls /home/vagrant/jake_1.0-7.debian.tar.gz') do
     its(:exit_status) { should eq 0 }
   end
+end
+=end
+describe file('/etc/yum.repos.d/github_git-lfs.repo') do
+  it { should exist }
 end
